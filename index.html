@@ -1,52 +1,42 @@
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Sora Bot Captcha</title>
-    <script src="https://www.google.com/recaptcha/api.js?render=6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP"></script>
-    <script>
-        // Automatically execute reCAPTCHA v3 on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            grecaptcha.ready(function() {
-                // Execute reCAPTCHA for the 'submit' action
-                grecaptcha.execute('6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP', { action: 'submit' })
-                    .then(function(token) {
-                        // Send the token to your server for verification
-                        verifyToken(token);
-                    });
-            });
+  <title>Sora Bot Captcha</title>
+  <script src="https://www.google.com/recaptcha/api.js?render=6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    window.Telegram.WebApp.ready();
+
+    function verifyCaptcha(token) {
+      // Simulate CAPTCHA verification
+      fetch('/verify-captcha', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            window.Telegram.WebApp.sendData('success');
+          } else {
+            window.Telegram.WebApp.sendData('fail');
+          }
+        })
+        .catch(err => {
+          console.error('Verification failed:', err);
+          window.Telegram.WebApp.sendData('fail');
         });
+    }
 
-        function verifyToken(token) {
-            // Example: Post the token to your server for verification
-            fetch('/verify-captcha', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ token: token })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.score > 0.5) {
-                    // If score is acceptable, proceed
-                    console.log('Verification successful:', data);
-                } else {
-                    // If score is low, fallback to manual CAPTCHA
-                    console.log('Low score, prompting manual CAPTCHA...');
-                    promptManualCaptcha();
-                }
-            })
-            .catch(error => {
-                console.error('Error verifying token:', error);
-            });
-        }
-
-        function promptManualCaptcha() {
-            // You can redirect the user to a page with v2 challenge or show an error
-            alert('Please complete the CAPTCHA manually.');
-        }
-    </script>
+    // Execute reCAPTCHA and call verifyCaptcha
+    grecaptcha.ready(() => {
+      grecaptcha.execute('6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP', { action: 'submit' }).then(verifyCaptcha);
+    });
+  </script>
 </head>
 <body>
-    <h1>Verifying...</h1>
+  <h1>Sora Bot Captcha</h1>
 </body>
 </html>
