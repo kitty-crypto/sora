@@ -1,16 +1,52 @@
 <html>
 <head>
     <title>Sora Bot Captcha</title>
-    <script src="https://www.google.com/recaptcha/api.js"></script>
-</head>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP"></script>
+    <script>
+        // Automatically execute reCAPTCHA v3 on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            grecaptcha.ready(function() {
+                // Execute reCAPTCHA for the 'submit' action
+                grecaptcha.execute('6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP', { action: 'submit' })
+                    .then(function(token) {
+                        // Send the token to your server for verification
+                        verifyToken(token);
+                    });
+            });
+        });
 
+        function verifyToken(token) {
+            // Example: Post the token to your server for verification
+            fetch('/verify-captcha', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token: token })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.score > 0.5) {
+                    // If score is acceptable, proceed
+                    console.log('Verification successful:', data);
+                } else {
+                    // If score is low, fallback to manual CAPTCHA
+                    console.log('Low score, prompting manual CAPTCHA...');
+                    promptManualCaptcha();
+                }
+            })
+            .catch(error => {
+                console.error('Error verifying token:', error);
+            });
+        }
+
+        function promptManualCaptcha() {
+            // You can redirect the user to a page with v2 challenge or show an error
+            alert('Please complete the CAPTCHA manually.');
+        }
+    </script>
+</head>
 <body>
-    <button class="g-recaptcha" data-sitekey="6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP" data-callback='onSubmit'
-        data-action='submit'>Submit</button>
+    <h1>Verifying...</h1>
 </body>
-<script>
-    function onSubmit(token) {
-        document.getElementById("demo-form").submit();
-    }
-</script>
 </html>
