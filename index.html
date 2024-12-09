@@ -2,8 +2,66 @@
 <html>
 <head>
     <title>Sora Bot Captcha</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://www.google.com/recaptcha/api.js?render=6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* General body styling */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f9f9f9;
+        }
+
+        /* Header styling */
+        h1 {
+            font-size: 2rem;
+            color: #333;
+            margin: 0 1rem;
+            text-align: center;
+        }
+
+        /* Container for dynamic content */
+        .content {
+            max-width: 500px;
+            width: 90%;
+            margin: 20px auto;
+            text-align: center;
+            padding: 15px;
+            background: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        /* Make the captcha content visually appealing */
+        .captcha-info {
+            font-size: 1rem;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .content {
+                width: 95%;
+                padding: 10px;
+            }
+
+            .captcha-info {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
     <script>
         // Extract chatId from URL query parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -44,6 +102,9 @@
     </script>
 </head>
 <body>
-    <h1>Sora Bot Captcha</h1>
+    <div class="content">
+        <h1>Sora Bot Captcha</h1>
+        <p class="captcha-info">Please wait while we verify your identity...</p>
+    </div>
 </body>
 </html>
