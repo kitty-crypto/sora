@@ -1,42 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Sora Bot Captcha</title>
-  <script src="https://www.google.com/recaptcha/api.js?render=6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP"></script>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script>
-    window.Telegram.WebApp.ready();
+    <title>Sora Bot Captcha</title>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Extract chatId from URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const chatId = urlParams.get('chatId');
 
-    function verifyCaptcha(token) {
-      // Simulate CAPTCHA verification
-      fetch('/verify-captcha', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            window.Telegram.WebApp.sendData('success');
-          } else {
-            window.Telegram.WebApp.sendData('fail');
-          }
-        })
-        .catch(err => {
-          console.error('Verification failed:', err);
-          window.Telegram.WebApp.sendData('fail');
+        if (!chatId) {
+            alert('Error: chatId not provided!');
+            throw new Error('chatId is required to proceed.');
+        }
+
+        window.Telegram.WebApp.ready();
+
+        function verifyCaptcha(token) {
+            // POST chatId and token to the server
+            fetch('/verify-captcha', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token, chatId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const result = data.success ? 'success' : 'fail';
+                    // Send result and chatId back to the bot
+                    window.Telegram.WebApp.sendData(JSON.stringify({ result, chatId }));
+                })
+                .catch(err => {
+                    console.error('Verification failed:', err);
+                    window.Telegram.WebApp.sendData(JSON.stringify({ result: 'fail', chatId }));
+                });
+        }
+
+        // Execute reCAPTCHA and call verifyCaptcha
+        grecaptcha.ready(() => {
+            grecaptcha.execute('6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP', { action: 'submit' }).then(verifyCaptcha);
         });
-    }
-
-    // Execute reCAPTCHA and call verifyCaptcha
-    grecaptcha.ready(() => {
-      grecaptcha.execute('6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP', { action: 'submit' }).then(verifyCaptcha);
-    });
-  </script>
+    </script>
 </head>
 <body>
-  <h1>Sora Bot Captcha</h1>
+    <h1>Sora Bot Captcha</h1>
 </body>
 </html>
