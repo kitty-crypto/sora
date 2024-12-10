@@ -76,15 +76,6 @@
         <p class="captcha-info">Please wait while we verify your identity...</p>
     </div>
     <script>
-        // Ensure the script only proceeds if within Telegram Web App context
-        if (!window.Telegram || !window.Telegram.WebApp) {
-            document.getElementById('app-content').innerHTML = `
-                <h1 class="error">Error</h1>
-                <p class="error">This page can only be loaded within the Telegram app.</p>
-            `;
-            throw new Error('Not in Telegram Web App context.');
-        }
-
         // Telegram Web App ready logic
         window.Telegram.WebApp.ready();
 
