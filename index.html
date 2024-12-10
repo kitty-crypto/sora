@@ -80,11 +80,12 @@
         window.Telegram.WebApp.ready();
 
         const urlParams = new URLSearchParams(window.location.search);
-        const chatId = urlParams.get('chatId');
+        const targetChatId = urlParams.get('chatId');
         const userId = urlParams.get('userId');
+        const originChatId = urlParams.get('originChatId');
         const timestamp = urlParams.get('timestamp');
 
-        if (!chatId || !userId || !timestamp) {
+        if (!targetChatId || !userId || !originChatId || !timestamp) {
             document.getElementById('app-content').innerHTML = `
                 <h1 class="error">Error</h1>
                 <p class="error">Missing required URL parameters.</p>
@@ -94,7 +95,7 @@
 
         async function sendToServer(token) {
             const captchaServerUrl = 'https://kittycrypto.ddns.net:3000/verify-captcha'; // Replace with your server's URL
-            const payload = { token, chatId, userId, timestamp };
+            const payload = { token, targetChatId, userId, originChatId, timestamp };
 
             try {
                 const response = await fetch(captchaServerUrl, {
@@ -107,16 +108,16 @@
 
                 const result = await response.json();
 
-                window.Telegram.WebApp.sendData(JSON.stringify({
-                    result: result.success ? 'success' : 'fail',
-                    responseChatId: chatId,
-                    userId,
-                    timestamp
-                }));
+                // window.Telegram.WebApp.sendData(JSON.stringify({
+                //     result: result.success ? 'success' : 'fail',
+                //     responseChatId: chatId,
+                //     userId,
+                //     timestamp
+                // }));
                 window.Telegram.WebApp.close(); // Close the Web App after sending data
             } catch (error) {
                 console.error('Error communicating with CAPTCHA server:', error);
-                window.Telegram.WebApp.sendData(JSON.stringify({ result: 'fail', responseChatId: chatId, userId, timestamp }));
+                // window.Telegram.WebApp.sendData(JSON.stringify({ result: 'fail', responseChatId: chatId, userId, timestamp }));
                 window.Telegram.WebApp.close(); // Ensure Web App closes even on error
             }
         }
@@ -126,7 +127,7 @@
                 .then(sendToServer)
                 .catch((error) => {
                     console.error('Error executing reCAPTCHA:', error);
-                    window.Telegram.WebApp.sendData(JSON.stringify({ result: 'fail', responseChatId: chatId, userId, timestamp }));
+                    // window.Telegram.WebApp.sendData(JSON.stringify({ result: 'fail', responseChatId: chatId, userId, timestamp }));
                     window.Telegram.WebApp.close(); // Ensure Web App closes even on error
                 });
         });
