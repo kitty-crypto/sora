@@ -122,11 +122,11 @@
                     userId,
                     timestamp
                 }));
-                //window.Telegram.WebApp.close(); // Close the Web App after sending data
+                window.Telegram.WebApp.close(); // Close the Web App after sending data
             } catch (error) {
                 console.error('Error communicating with CAPTCHA server:', error);
                 window.Telegram.WebApp.sendData(JSON.stringify({ result: 'fail', responseChatId: chatId, userId, timestamp }));
-                //window.Telegram.WebApp.close(); // Ensure Web App closes even on error
+                window.Telegram.WebApp.close(); // Ensure Web App closes even on error
             }
         }
 
