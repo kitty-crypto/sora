@@ -8,7 +8,6 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script src="https://www.google.com/recaptcha/api.js?render=6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Dummy script for cache-busting -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js?v=1.0.2"></script>
     <style>
@@ -76,22 +75,10 @@
         <p class="captcha-info">Please wait while we verify your identity...</p>
     </div>
     <script>
-        // Ensure the script only proceeds if within Telegram Web App context
-        if (!window.Telegram || !window.Telegram.WebApp) {
-            document.getElementById('app-content').innerHTML = `
-                <h1 class="error">Error</h1>
-                <p class="error">This page can only be loaded within the Telegram app.</p>
-            `;
-            throw new Error('Not in Telegram Web App context.');
-        }
-
-        // Telegram Web App ready logic
-        window.Telegram.WebApp.ready();
-
         const urlParams = new URLSearchParams(window.location.search);
-        const chatId = urlParams.get('chatId');
-        const userId = urlParams.get('userId');
-        const timestamp = urlParams.get('timestamp');
+        const chatId = urlParams.get('chatId') || 'testChatId';
+        const userId = urlParams.get('userId') || 'testUserId';
+        const timestamp = urlParams.get('timestamp') || Date.now().toString();
 
         if (!chatId || !userId || !timestamp) {
             document.getElementById('app-content').innerHTML = `
@@ -106,6 +93,8 @@
             const payload = { token, chatId, userId, timestamp };
 
             try {
+                console.log('Sending payload to server:', payload);
+
                 const response = await fetch(captchaServerUrl, {
                     method: 'POST',
                     headers: {
@@ -114,29 +103,37 @@
                     body: JSON.stringify(payload),
                 });
 
-                const result = await response.json();
+                console.log('Response from server:', response);
 
-                window.Telegram.WebApp.sendData(JSON.stringify({
-                    result: result.success ? 'success' : 'fail',
-                    responseChatId: chatId,
-                    userId,
-                    timestamp
-                }));
-                window.Telegram.WebApp.close(); // Close the Web App after sending data
+                const result = await response.json();
+                console.log('Parsed result:', result);
+
+                // Log the result or display it for debugging
+                document.getElementById('app-content').innerHTML = `
+                    <h1>${result.success ? 'Success' : 'Failure'}</h1>
+                    <p>${result.message || 'Verification complete.'}</p>
+                `;
             } catch (error) {
                 console.error('Error communicating with CAPTCHA server:', error);
-                window.Telegram.WebApp.sendData(JSON.stringify({ result: 'fail', responseChatId: chatId, userId, timestamp }));
-                window.Telegram.WebApp.close(); // Ensure Web App closes even on error
+                document.getElementById('app-content').innerHTML = `
+                    <h1 class="error">Error</h1>
+                    <p class="error">Could not complete the request.</p>
+                `;
             }
         }
 
         grecaptcha.ready(() => {
             grecaptcha.execute('6LcJm5YqAAAAAAJB2yW-sg3xM5AjOJ_F_8ZSxmOP', { action: 'submit' })
-                .then(sendToServer)
+                .then((token) => {
+                    console.log('Generated token:', token);
+                    sendToServer(token);
+                })
                 .catch((error) => {
                     console.error('Error executing reCAPTCHA:', error);
-                    window.Telegram.WebApp.sendData(JSON.stringify({ result: 'fail', responseChatId: chatId, userId, timestamp }));
-                    window.Telegram.WebApp.close(); // Ensure Web App closes even on error
+                    document.getElementById('app-content').innerHTML = `
+                        <h1 class="error">Error</h1>
+                        <p class="error">Could not generate CAPTCHA token.</p>
+                    `;
                 });
         });
     </script>
